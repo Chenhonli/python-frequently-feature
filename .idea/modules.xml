@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/python-frequently-function.iml" filepath="$PROJECT_DIR$/.idea/python-frequently-function.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../python-frequently-feature/.idea/python-frequently-feature.iml" filepath="$PROJECT_DIR$/../python-frequently-feature/.idea/python-frequently-feature.iml" />
     </modules>
   </component>
 </project>
