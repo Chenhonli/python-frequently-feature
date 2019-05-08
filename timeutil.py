@@ -3,6 +3,7 @@ import time
 
 import pytz
 from dateutil import relativedelta
+from dse import end_month, end_week, start_week, start_month
 
 
 def datetime_to_timestamp(dt, tz=None):
@@ -41,6 +42,38 @@ def timestamp_to_datetime(ts, tz=None):
     return datetime.datetime.fromtimestamp(ts)
 
 
+def gen_start_dt(periods, unit='D', type='datetime'):
+    """
+    生成这样一天,满足该天到当前时间的天数为periods(包含当天)
+    生成这样一天，满足该天的本周、本月
+    :param periods:
+    :param unit:
+    :param type:
+    :return:
+    """
+    today = datetime.datetime.today()
+    today = today.replace(hour=0, minute=0, second=0, microsecond=0)
+    start = None
+
+    if unit == 'D':
+        start = today - datetime.timedelta(days=periods - 1)
+    elif unit == 'W':
+        start = today - datetime.timedelta(days=today.weekday()) - datetime.timedelta(weeks=periods - 1)
+    elif unit == 'M':
+        start = today.replace(day=1) - relativedelta.relativedelta(months=periods - 1)
+    if type == 'datetime':
+        return start
+    elif type == 'date':
+        return start.date()
+    return start
+
+
+print(gen_start_dt(5, unit='W', type='datetime'))
+
+
+
+
+
 def gen_time_df(periods, unit='D', start=None, type='datetime', complete=False):
     """
     包括本周、本月、本天
@@ -54,61 +87,40 @@ def gen_time_df(periods, unit='D', start=None, type='datetime', complete=False):
 
     # pd.set_option('display.max_colwidth', None)
     if not start:
-        # if type == 'datetime':
-        today = datetime.datetime.today()
-        today = today.replace(hour=0, minute=0, second=0, microsecond=0)
-
-        # elif type == 'date':
-        #     today = datetime.date.today()
-
-        if unit == 'D':
-            start = today - datetime.timedelta(days=periods - 1)
-        elif unit == 'W':
-            start = today - datetime.timedelta(days=today.weekday()) - datetime.timedelta(weeks=periods - 1)
-        elif unit == 'M':
-            start = today.replace(day=1) - relativedelta.relativedelta(months=periods - 1)
+        start = gen_start_dt(periods=periods, unit=unit, type=type)
 
     if unit == 'D':
         df = pd.DataFrame([[x]
                            for x in pd.date_range(start, periods=periods, freq='D')],
                           columns=['day'])
-        print(df.day.dtype)
+        # print(df.day.dtype)
         if complete:
+
             df['weekday'] = df['day'].dt.dayofweek
             df['week_start'] = df.apply(lambda x: x['day'] - datetime.timedelta(days=x['weekday']), axis=1)
-            df['week_end'] = df.apply(lambda x: (x['week_start'] + datetime.timedelta(days=6))
-                                      .replace(hour=23, minute=59, second=59, microsecond=0), axis=1)
+            df['week_end'] = df.apply(lambda x: end_week(x['day'], type=type), axis=1).astype('datetime64[ns]')
+
             df['month_start'] = df.apply(lambda x: x['day'].replace(day=1), axis=1)
-            df['month_end'] = df.apply(
-                lambda x: (x['day'].replace(day=1) + relativedelta.relativedelta(months=1) - datetime.timedelta(days=1))
-                    .replace(hour=23, minute=59, second=59, microsecond=0), axis=1)
+            df['month_end'] = (df.apply(lambda x: end_month(x['day'], type=type), axis=1)).astype('datetime64[ns]')
+
             df['month'] = df['day'].dt.month
             df['year'] = df['day'].dt.year
             df['month'] = df.apply(lambda r: int(str(r['year']) + str(r['month']).zfill(2)), axis=1)
-            # df.drop('year', axis=1, inplace=True)
-        print(df.month_end.dtype)
+    # W-MON
     elif unit == 'W':
-        df = pd.DataFrame([[x]
-                           for x in pd.date_range(start, periods=periods, freq='W-MON')],
-                          columns=['week_start'])
-        df['week_end'] = df.apply(lambda x: x['week_start'] + datetime.timedelta(days=6), axis=1)
+        df = pd.DataFrame([[x] for x in pd.date_range(start_week(start, type=type), periods=periods, freq='7D')], columns=['week_start'])
+        df['week_end'] = (df.apply(lambda x: end_week(x['week_start'], type=type), axis=1)).astype('datetime64[ns]')
         if complete:
-            df['month_start'] = df.apply(lambda x: x['week_start'].replace(day=1), axis=1)
-            df['month_end'] = df.apply(
-                lambda x: x['week_start'].replace(day=1) + relativedelta.relativedelta(months=1) - datetime.timedelta(
-                    days=1), axis=1)
+            df['month_start'] = (df.apply(lambda x: start_month(x['week_start'], type=type), axis=1)).astype('datetime64[ns]')
+            df['month_end'] = (df.apply(lambda x: end_month(x['week_start'], type=type), axis=1)).astype('datetime64[ns]')
             df['month'] = df['week_start'].dt.month
             df['year'] = df['week_start'].dt.year
             df['month'] = df.apply(lambda r: int(str(r['year']) + str(r['month']).zfill(2)), axis=1)
             df.drop('year', axis=1, inplace=True)
 
     elif unit == 'M':
-        df = pd.DataFrame([[x]
-                           for x in pd.date_range(start, periods=periods, freq='MS')],
-                          columns=['month_start'])
-        df['month_end'] = df.apply(
-            lambda x: x['month_start'].replace(day=1) + relativedelta.relativedelta(months=1) - datetime.timedelta(
-                days=1), axis=1)
+        df = pd.DataFrame([[x] for x in pd.date_range(start_month(start, type=type), periods=periods, freq='1M')], columns=['month_start'])
+        df['month_end'] = df.apply(lambda x: end_month(x['month_start'], type=type), axis=1)
         df['month'] = df['month_start'].dt.month
         df['year'] = df['month_start'].dt.year
         df['month'] = df.apply(lambda r: int(str(r['year']) + str(r['month']).zfill(2)), axis=1)
@@ -148,13 +160,20 @@ def gen_time_df(periods, unit='D', start=None, type='datetime', complete=False):
 # print(type(b))
 # print(b)
 
-last = datetime.datetime.today().replace(hour=0, minute=0, second=0, microsecond=0)-datetime.timedelta(days=2)
 
-a = gen_time_df(15,  unit='D', start=last, complete=True)
+
+# last = datetime.datetime.today().replace(hour=0, minute=0, second=0, microsecond=0)
+# print(last)
+# # a = gen_time_df(5,  unit='M', complete=True, type='datetime', start=last)
+# # import pdb; pdb.set_trace()
+# # # #
+# # print(a)
+# # # print(type(a))
 #
-print(a)
-# print(type(a))
-
+# print(start_month(last, type='date'))
+# import pandas as pd
+# # print(pd.date_range(start_week(last, type='date'), periods=5, freq='7D'))
+# print(pd.date_range(start_month(last, type='date'), periods=5, freq='M'))
 
 # def gen_inst_daily_index(context, periods=30, nocon=False):
 #     """
