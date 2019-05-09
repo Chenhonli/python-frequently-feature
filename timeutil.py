@@ -2,7 +2,7 @@ import datetime
 import time
 
 import pytz
-from dateutil import relativedelta
+from dateutil.relativedelta import relativedelta
 from dse import end_month, end_week, start_week, start_month
 
 
@@ -45,10 +45,11 @@ def timestamp_to_datetime(ts, tz=None):
 def gen_start_dt(periods, unit='D', type='datetime'):
     """
     生成这样一天,满足该天到当前时间的天数为periods(包含当天)
-    生成这样一天，满足该天的本周、本月
-    :param periods:
-    :param unit:
-    :param type:
+    生成这样一天,满足该天是一周中的第一天,该天距离本周周数为period周(包含当周)
+    生成这样一天,满足该天是一月中的第一天,该天距离本月月数为period月(包含当月)
+    :param periods:生成的start到当前的天数、周数、月数
+    :param unit:选择periods数是天、周、月
+    :param type:返回的数据类型是datetime还是date
     :return:
     """
     today = datetime.datetime.today()
@@ -60,7 +61,7 @@ def gen_start_dt(periods, unit='D', type='datetime'):
     elif unit == 'W':
         start = today - datetime.timedelta(days=today.weekday()) - datetime.timedelta(weeks=periods - 1)
     elif unit == 'M':
-        start = today.replace(day=1) - relativedelta.relativedelta(months=periods - 1)
+        start = today.replace(day=1) - relativedelta(months=periods - 1)
     if type == 'datetime':
         return start
     elif type == 'date':
@@ -68,7 +69,6 @@ def gen_start_dt(periods, unit='D', type='datetime'):
     return start
 
 
-print(gen_start_dt(5, unit='W', type='datetime'))
 
 
 
@@ -76,24 +76,24 @@ print(gen_start_dt(5, unit='W', type='datetime'))
 
 def gen_time_df(periods, unit='D', start=None, type='datetime', complete=False):
     """
-    包括本周、本月、本天
-    :param periods:往前推或者后推多少天、多少周、多少月
-    :param unit:选择前、后推时间粒度
-    :param start:给定开始时间。当给定开始时间时，则以给定的开始时间然后往后推多少天、多少周、多少月。当未给定开始时间时，则以此刻时间作为基础，往前推多少天、多少周、多少月。
-    :param complete:显示完整的字段
+    生成这样时间序列
+    当unit为D时，生成periods天，如果没指定start，则生成从当天计算列出之前的periods天的序列，如果指定start，则生成从start开始的periods天的序列。
+    当unit为W时，生成periods天，如果没指定start，则生成从本周计算列出之前的periods周第一天的序列，如果指定start，则生成从start开始的periods周第一天的序列。
+    当unit为M时，生成periods天，如果没指定start，则生成从本月计算列出之前的periods月第一天的序列，如果指定start，则生成从start开始的periods月第一天的序列。
+    :param periods:选择输出时间序列的天数
+    :param unit:选择时间序列生成的粒度
+    :param start:指定时间序列开始的时间，默认为None
+    :param complete:显示生成序列的其他全部字段
     :return:
     """
     import pandas as pd
 
-    # pd.set_option('display.max_colwidth', None)
     if not start:
         start = gen_start_dt(periods=periods, unit=unit, type=type)
 
     if unit == 'D':
-        df = pd.DataFrame([[x]
-                           for x in pd.date_range(start, periods=periods, freq='D')],
-                          columns=['day'])
-        # print(df.day.dtype)
+        df = pd.DataFrame([[x] for x in pd.date_range(start, periods=periods, freq='D')], columns=['day'])
+
         if complete:
 
             df['weekday'] = df['day'].dt.dayofweek
@@ -106,7 +106,7 @@ def gen_time_df(periods, unit='D', start=None, type='datetime', complete=False):
             df['month'] = df['day'].dt.month
             df['year'] = df['day'].dt.year
             df['month'] = df.apply(lambda r: int(str(r['year']) + str(r['month']).zfill(2)), axis=1)
-    # W-MON
+
     elif unit == 'W':
         df = pd.DataFrame([[x] for x in pd.date_range(start_week(start, type=type), periods=periods, freq='7D')], columns=['week_start'])
         df['week_end'] = (df.apply(lambda x: end_week(x['week_start'], type=type), axis=1)).astype('datetime64[ns]')
@@ -119,7 +119,8 @@ def gen_time_df(periods, unit='D', start=None, type='datetime', complete=False):
             df.drop('year', axis=1, inplace=True)
 
     elif unit == 'M':
-        df = pd.DataFrame([[x] for x in pd.date_range(start_month(start, type=type), periods=periods, freq='1M')], columns=['month_start'])
+        df = pd.DataFrame([[start_month(start, type=type) + relativedelta(months=x)] for x in range(periods)], columns=['month_start'], dtype='datetime64[ns]')
+        print(df.dtypes)
         df['month_end'] = df.apply(lambda x: end_month(x['month_start'], type=type), axis=1)
         df['month'] = df['month_start'].dt.month
         df['year'] = df['month_start'].dt.year
@@ -162,12 +163,12 @@ def gen_time_df(periods, unit='D', start=None, type='datetime', complete=False):
 
 
 
-# last = datetime.datetime.today().replace(hour=0, minute=0, second=0, microsecond=0)
-# print(last)
-# # a = gen_time_df(5,  unit='M', complete=True, type='datetime', start=last)
-# # import pdb; pdb.set_trace()
-# # # #
-# # print(a)
+last = datetime.datetime.today().replace(hour=0, minute=0, second=0, microsecond=0)-relativedelta(months=2)
+print(last)
+a = gen_time_df(5,  unit='M', complete=True, type='datetime')
+# import pdb; pdb.set_trace()
+# # #
+print(a)
 # # # print(type(a))
 #
 # print(start_month(last, type='date'))
