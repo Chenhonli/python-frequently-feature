@@ -8,7 +8,7 @@ from dse import end_month, end_week, start_week, start_month
 
 def datetime_to_timestamp(dt, tz=None):
     """
-    根据时区tz将datetime类型的dt转换成该时区的timestamp类型
+    根据时区tz将datetime类型的UTC时间dt转换成该时区的timestamp类型
     :param dt: datetime时间，输入的dt必须是UTC时间
     :param tz: 时区
     :return:
@@ -21,8 +21,8 @@ def datetime_to_timestamp(dt, tz=None):
 
 def datetime_str_to_timestamp(datetime_str, tz=None):
     """
-    根据时区tz将datetime类型的字符串datetime_str转换成该时区的timestamp(时间戳)
-    :param datetime_str:必须是UTC时间字符串
+    根据时区tz将datetime类型的UTC时间的字符串datetime_str转换成该时区的timestamp(时间戳)
+    :param datetime_str:输入的dt必须是UTC时间的字符串
     :param tz:时区
     :return:
     """
@@ -32,8 +32,8 @@ def datetime_str_to_timestamp(datetime_str, tz=None):
 
 def timestamp_to_datetime(ts, tz=None):
     """
-    根据时区tz将时间戳ts转化成datetime类型
-    :param ts:UTC时间的时间戳
+    根据时区tz将本地时间戳ts转化成datetime类型
+    :param ts:ts为localstamp(本地时间戳)
     :param tz:时区
     :return:
     """
@@ -67,11 +67,6 @@ def gen_start_dt(periods, unit='D', type='datetime'):
     elif type == 'date':
         return start.date()
     return start
-
-
-
-
-
 
 
 def gen_time_df(periods, unit='D', start=None, type='datetime', complete=False):
@@ -131,95 +126,3 @@ def gen_time_df(periods, unit='D', start=None, type='datetime', complete=False):
         raise RuntimeError
 
     return df
-
-# datetime.timedelta()
-# from dateutil.relativedelta import relativedelta
-
-# # 时区的概念只精确到小时，各时区的分秒是一样的
-# tod = datetime.datetime.today()
-# print(tod.dayofweek)
-# print(tod)
-# print(datetime.datetime.fromtimestamp(tod))
-# print(tod.tzinfo)
-#
-# utc1 = pytz.timezone('UTC').localize(tod)
-# print(utc1)
-# utc = pytz.timezone('Asia/Chongqing').localize(tod)
-# print(utc)
-# print(utc1)
-# datetime_to_timestamp(tod)
-
-
-# b = datetime.datetime(1971, 1, 1)
-# print(b)
-# c = pytz.timezone('Asia/Chongqing').localize(b)
-# print(c)
-# print(pytz.timezone('Asia/Chongqing').localize(tod))
-
-# a = -355377889370976896756898262599672602
-# b = -a
-# print(type(b))
-# print(b)
-
-
-
-last = datetime.datetime.today().replace(hour=0, minute=0, second=0, microsecond=0)-relativedelta(months=2)
-print(last)
-a = gen_time_df(5,  unit='M', complete=True, type='datetime')
-# import pdb; pdb.set_trace()
-# # #
-print(a)
-# # # print(type(a))
-#
-# print(start_month(last, type='date'))
-# import pandas as pd
-# # print(pd.date_range(start_week(last, type='date'), periods=5, freq='7D'))
-# print(pd.date_range(start_month(last, type='date'), periods=5, freq='M'))
-
-# def gen_inst_daily_index(context, periods=30, nocon=False):
-#     """
-#     生成所有机构每天的序列表(可设置是否包含当天,默认包含)
-#     :param context:
-#     :param periods: 过去多少天
-#     :param nocon: 设置包不包含今天的日期，默认False为包含，True为不包含
-#     :return: day(datetime)
-#     """
-#     if nocon:
-#         pd_days_time = timeutils.gen_time_df(periods + 1, unit='D')
-#         pd_days_time = pd_days_time[: -1]
-#     else:
-#         pd_days_time = timeutils.gen_time_df(periods, unit='D')
-#
-#     return pd_days_time
-#
-#
-#
-# def gen_inst_monthly_index(context, periods=12):
-#     """
-#     生成所有机构的月份序列表(包含当月)
-#     :param context:
-#     :param periods: 过去几个月
-#     :return: month_start(datetime), month_end(datetime), month(int64)
-#     """
-#     pd_months_time = timeutils.gen_time_df(periods, unit='M')
-#
-#
-#
-# def gen_inst_weekly_index(context, periods=12, noupdate=False):
-#     """
-#     生成所有机构的周序列表(包含当周)
-#     :param context:
-#     :param periods: 过去几周
-#     :return: start(过去periods周的第一天), update_start(过去一周的第一天)
-#     """
-#
-#     pd_weeks_time = timeutils.gen_time_df(periods, unit='W')
-#     start = pd_weeks_time.loc[0, 'week_start']
-#     update_start = pd_weeks_time.loc[10, 'week_start']
-#
-
-
-# today = datetime.datetime(2019, 1, 1)
-# print(today.weekday())
-# today = today.replace(hour=0, minute=0, second=0, microsecond=0)
-# print(today - relativedelta.relativedelta(months=1))
