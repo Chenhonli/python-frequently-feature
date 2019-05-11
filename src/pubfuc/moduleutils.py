@@ -2,8 +2,6 @@
 import inspect
 from importlib import import_module
 from pkgutil import iter_modules
-import sys
-import re
 
 
 def load_object(path):
@@ -78,17 +76,3 @@ def get_class(name, base_class, *modules):
     for cls in iter_classes(base_class, *modules, class_filter=lambda x: x.__module__.split('.')[-1] == name):
         return cls
     return None
-
-# import os
-
-# src = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-# print(src)
-# print(type(src))
-# sys.path.append('/Users/jing/Desktop/python-frequently-feature/src')
-# import pubfuc
-
-# a = load_object('dtutil.dse.end_quarter')
-# b = walk_modules('pubfuc.dtutil')
-# import pdb;pdb.set_trace()
-# for i in sys.path:
-#     sys.stdout.write(i + "\n")
