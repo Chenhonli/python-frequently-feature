@@ -19,17 +19,16 @@ class MyFTP(FTP):
         dir_name_list = [dir_detail_str.split(' ')[-1] for dir_detail_str in dir_list]
         return [file for file in dir_name_list if file != "." and file !=".."]
 
-    def checkFileDir(ftp, file_name):
+    def checkFileDir(self, file_path):
         """
         判断当前目录下的文件与文件夹
-        :param ftp: 实例化的FTP对象
         :param file_name: 文件名/文件夹名
         :return:返回字符串“File”为文件，“Dir”问文件夹，“Unknow”为无法识别
         """
         rec = ""
         try:
-            rec = ftp.cwd(file_name)  # 需要判断的元素
-            ftp.cwd("..")  # 如果能通过路劲打开必为文件夹，在此返回上一级
+            rec = self.cwd(file_path)  # 需要判断的元素
+            self.cwd("..")  # 如果能通过路劲打开必为文件夹，在此返回上一级
         except error_perm as fe:
             rec = fe  # 不能通过路劲打开必为文件，抓取其错误信息
         finally:
