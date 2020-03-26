@@ -8,7 +8,7 @@ class MyFTP(FTP):
 
     def getdirs(self, dirpath=None):
         """
-        输出当前目录下的dirname
+        获取当前路径或者指定路径下的文件、目录
         :param args:
         :return:
         """
@@ -19,15 +19,15 @@ class MyFTP(FTP):
         dir_name_list = [dir_detail_str.split(' ')[-1] for dir_detail_str in dir_list]
         return [file for file in dir_name_list if file != "." and file !=".."]
 
-    def checkFileDir(self, file_path):
+    def checkFileDir(self, dirpath):
         """
-        判断当前目录下的文件与文件夹
-        :param file_name: 文件名/文件夹名
+        检查指定路径是目录还是文件
+        :param dirpath: 文件路径或目录路径
         :return:返回字符串“File”为文件，“Dir”问文件夹，“Unknow”为无法识别
         """
         rec = ""
         try:
-            rec = self.cwd(file_path)  # 需要判断的元素
+            rec = self.cwd(dirpath)  # 需要判断的元素
             self.cwd("..")  # 如果能通过路劲打开必为文件夹，在此返回上一级
         except error_perm as fe:
             rec = fe  # 不能通过路劲打开必为文件，抓取其错误信息
