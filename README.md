@@ -2,6 +2,9 @@
 
 ##### 此库包含python开发常用的一些功能类、函数，会不断添加。
 
+tutorial wiki：https://github.com/Chenhonli/python-frequently-feature/wiki
+
+
 ##### 详细包含下列功能: <br>
 - 时间转化、时间序列生成（维度：日、周、月、季）
 - python模块搜寻、迭代
@@ -11,5 +14,4 @@
 - 实现ftp服务器的操作模块，下面为功能
     * 获取当前路径或者指定路径下的文件、目录
     * 检查指定路径是目录还是文件
-    * 根据目录、文件的修改时间来判断是否下载ftp的文件。
-tutorial wiki：https://github.com/Chenhonli/python-frequently-feature/wiki
+    * 获取给定目录、文件的修改时间
