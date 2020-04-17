@@ -42,6 +42,7 @@ def path_split_list(path, result):
 def zip_path(input_path, output_path, output_name):
     """
     压缩整个目录，并指定输出路径及输出的名称
+    Compress the entire directory and specify
     :param input_path:
     :param output_path:
     :param output_name:

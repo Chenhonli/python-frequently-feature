@@ -3,6 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="b1c5cc67-bb8d-4678-801f-4af2d928b18d" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/pubfuc/zip_operate/zip_appoint_path.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/pubfuc/zip_operate/zip_appoint_path.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -49,7 +50,7 @@
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="F:/pubmed_crawl" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
@@ -169,7 +170,8 @@
       <workItem from="1585209384770" duration="3918000" />
       <workItem from="1585215294023" duration="145000" />
       <workItem from="1585290000919" duration="2140000" />
-      <workItem from="1586845941359" duration="5773000" />
+      <workItem from="1586845941359" duration="8991000" />
+      <workItem from="1587000626074" duration="2494000" />
     </task>
     <servers />
   </component>
